@@ -1,722 +1,1101 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>🐈 whisper.ai v6.2</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🐈 whisper.ai 奶茶貓貓 UI v6.3</title>
 
-<style>
-:root{
-  --bg:#0b0b10;
-  --sidebar:#11111a;
-  --panel:#151522;
-  --panel-2:#1b1b26;
-  --bubble-user:#8c7cff;
-  --bubble-ai:#2c2c3a;
-  --btn:#a594ff;
-  --accent:#c8bfff;
-  --divider:#2a2a35;
-  --text:#ffffff;
-  --muted:#bdbdd3;
-  --danger:#ff7f9f;
-}
+  <style>
+    :root{
+      --bg:#faf7f2;
+      --bg-2:#fdfbf8;
+      --sidebar:#f4ebdf;
+      --panel:#fffdf9;
+      --panel-2:#fff8f0;
+      --line:#eadfce;
+      --text:#5c4633;
+      --muted:#8b7562;
 
-*{box-sizing:border-box;}
+      --accent:#c99767;
+      --accent-2:#e8c8a7;
+      --accent-strong:#b27c4f;
 
-body{
-  margin:0;
-  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  display:flex;
-  height:100vh;
-  font-size:16px;
-}
+      --bubble-user:#d5a574;
+      --bubble-user-2:#c58b59;
+      --bubble-ai:#fff5ea;
+      --bubble-ai-border:#eadccc;
 
-body.pink{
-  --bg:#1a0f14;
-  --sidebar:#2a1a22;
-  --panel:#23151c;
-  --panel-2:#2c1822;
-  --bubble-user:#ffb6d5;
-  --bubble-ai:#ffddee;
-  --btn:#ff9ac6;
-  --accent:#ffd1e6;
-  --divider:#3a2630;
-  --text:#fff7fb;
-  --muted:#f2cddd;
-  --danger:#ff8cb1;
-}
+      --chip:#f8efe5;
+      --chip-active:#f1dcc2;
 
-button{
-  background:linear-gradient(135deg,var(--btn),var(--accent));
-  border:none;
-  border-radius:12px;
-  padding:8px 10px;
-  cursor:pointer;
-  color:white;
-  font-weight:600;
-}
+      --input-bg:#fffaf4;
+      --shadow:0 16px 40px rgba(153, 110, 67, 0.12);
 
-button:hover{
-  opacity:0.95;
-}
+      --danger:#d98e8b;
+      --danger-2:#e7a7a4;
+    }
 
-input, textarea{
-  font:inherit;
-}
+    body[data-theme="night"]{
+      --bg:#1d1714;
+      --bg-2:#241d19;
+      --sidebar:#2a211c;
+      --panel:#2f2520;
+      --panel-2:#352923;
+      --line:#47372d;
+      --text:#f7ece2;
+      --muted:#cfb8a4;
 
-#sidebar{
-  width:240px;
-  background:var(--sidebar);
-  border-right:1px solid var(--divider);
-  display:flex;
-  flex-direction:column;
-  padding:12px;
-  gap:10px;
-}
+      --accent:#c99767;
+      --accent-2:#8e6542;
+      --accent-strong:#dfb188;
 
-#brand{
-  font-weight:800;
-  padding:4px 2px 10px;
-  border-bottom:1px solid var(--divider);
-}
+      --bubble-user:#a9774a;
+      --bubble-user-2:#8d6038;
+      --bubble-ai:#3a2d26;
+      --bubble-ai-border:#4a3b32;
 
-#sidebar-actions{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-}
+      --chip:#382c25;
+      --chip-active:#5a4332;
 
-#chatlist{
-  flex:1;
-  overflow:auto;
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-  padding-right:2px;
-}
+      --input-bg:#2b211c;
+      --shadow:0 18px 44px rgba(0,0,0,0.35);
 
-.chat-item{
-  width:100%;
-  text-align:left;
-  background:rgba(255,255,255,0.04);
-  border:1px solid transparent;
-  color:var(--text);
-  padding:10px 12px;
-  border-radius:12px;
-  font-weight:500;
-}
+      --danger:#b6706c;
+      --danger-2:#8a4e4a;
+    }
 
-.chat-item.active{
-  border-color:var(--accent);
-  box-shadow:0 0 0 1px rgba(255,255,255,0.08) inset;
-}
+    *{
+      box-sizing:border-box;
+    }
 
-.sidebar-bottom{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-  padding-top:8px;
-  border-top:1px solid var(--divider);
-}
+    html, body{
+      height:100%;
+    }
 
-#main{
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  min-width:0;
-}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(255,255,255,0.45), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(201,151,103,0.08), transparent 22%),
+        linear-gradient(180deg, var(--bg-2), var(--bg));
+      display:flex;
+      font-size:16px;
+    }
 
-#topbar{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:12px 18px;
-  border-bottom:1px solid var(--divider);
-  background:rgba(255,255,255,0.02);
-  gap:12px;
-}
+    button, input, textarea{
+      font:inherit;
+    }
 
-#title-wrap{
-  display:flex;
-  flex-direction:column;
-  gap:2px;
-  min-width:0;
-}
+    button{
+      border:none;
+      border-radius:16px;
+      cursor:pointer;
+      transition:0.18s ease;
+    }
 
-#app-title{
-  font-weight:800;
-}
+    button:hover{
+      transform:translateY(-1px);
+    }
 
-#chat-subtitle{
-  color:var(--muted);
-  font-size:0.92em;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
+    button:active{
+      transform:translateY(0);
+    }
 
-#controls{
-  display:flex;
-  gap:6px;
-  flex-wrap:wrap;
-}
+    .primary-btn{
+      background:linear-gradient(135deg, var(--accent), var(--accent-2));
+      color:white;
+      box-shadow:0 10px 24px rgba(201,151,103,0.22);
+      font-weight:700;
+    }
 
-#promptbar{
-  padding:10px 14px;
-  border-bottom:1px solid var(--divider);
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  background:rgba(255,255,255,0.01);
-}
+    .soft-btn{
+      background:var(--panel);
+      color:var(--text);
+      border:1px solid var(--line);
+    }
 
-.prompt-btn{
-  background:rgba(255,255,255,0.06);
-  color:var(--text);
-  border:1px solid transparent;
-}
+    .danger-btn{
+      background:linear-gradient(135deg, var(--danger), var(--danger-2));
+      color:white;
+      font-weight:700;
+    }
 
-.prompt-btn.active{
-  background:linear-gradient(135deg,var(--btn),var(--accent));
-  border-color:rgba(255,255,255,0.18);
-}
+    #sidebar{
+      width:260px;
+      background:rgba(255,255,255,0.28);
+      backdrop-filter:blur(18px);
+      border-right:1px solid var(--line);
+      padding:14px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
 
-#chat{
-  flex:1;
-  overflow:auto;
-  padding:20px;
-}
+    #brand-card{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:22px;
+      padding:16px 16px 14px;
+      box-shadow:var(--shadow);
+    }
 
-.msg{
-  margin:10px 0;
-  display:flex;
-}
+    #brand-top{
+      font-size:1.08rem;
+      font-weight:800;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-bottom:6px;
+    }
 
-.msg.user{
-  justify-content:flex-end;
-}
+    #brand-sub{
+      color:var(--muted);
+      font-size:0.92rem;
+      line-height:1.45;
+    }
 
-.bubble{
-  padding:12px 16px;
-  border-radius:16px;
-  max-width:min(75%,720px);
-  white-space:pre-wrap;
-  word-break:break-word;
-  line-height:1.5;
-}
+    #new-chat{
+      width:100%;
+      padding:12px 14px;
+    }
 
-.msg.user .bubble{
-  background:var(--bubble-user);
-}
+    #chatlist{
+      flex:1;
+      overflow:auto;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      padding-right:2px;
+    }
 
-.msg.ai .bubble{
-  background:var(--bubble-ai);
-}
+    .chat-item{
+      width:100%;
+      text-align:left;
+      padding:12px 13px;
+      border-radius:16px;
+      background:rgba(255,255,255,0.38);
+      border:1px solid transparent;
+      color:var(--text);
+    }
 
-body.pink .msg.ai .bubble{
-  color:#4d2140;
-}
+    .chat-item:hover{
+      border-color:var(--line);
+      background:var(--panel);
+    }
 
-#inputbar{
-  display:flex;
-  gap:10px;
-  padding:12px;
-  border-top:1px solid var(--divider);
-}
+    .chat-item.active{
+      background:linear-gradient(180deg, var(--panel), var(--panel-2));
+      border-color:var(--accent-2);
+      box-shadow:0 10px 24px rgba(201,151,103,0.10);
+    }
 
-#input{
-  flex:1;
-  padding:12px;
-  border-radius:12px;
-  border:none;
-  outline:none;
-  background:white;
-  color:#111;
-}
+    .chat-item-title{
+      font-size:0.96rem;
+      font-weight:700;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      margin-bottom:3px;
+    }
 
-#send{
-  min-width:64px;
-}
+    .chat-item-sub{
+      font-size:0.80rem;
+      color:var(--muted);
+    }
 
-#settings{
-  position:fixed;
-  right:20px;
-  top:70px;
-  background:var(--panel-2);
-  border:1px solid var(--divider);
-  padding:18px;
-  border-radius:14px;
-  display:none;
-  width:min(360px, calc(100vw - 40px));
-  z-index:99;
-  box-shadow:0 18px 60px rgba(0,0,0,0.35);
-}
+    #sidebar-footer{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+    }
 
-.settings-title{
-  font-size:1.05rem;
-  font-weight:800;
-  margin-bottom:12px;
-}
+    #sidebar-footer .wide{
+      grid-column:1 / -1;
+    }
 
-.settings-group{
-  margin-bottom:14px;
-}
+    #main{
+      flex:1;
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+    }
 
-.settings-group label{
-  display:block;
-  margin-bottom:6px;
-  font-size:0.92em;
-  color:var(--muted);
-}
+    #topbar{
+      padding:16px 18px 14px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      background:rgba(255,255,255,0.18);
+      backdrop-filter:blur(16px);
+    }
 
-#settings input,
-#settings textarea{
-  width:100%;
-  border:none;
-  border-radius:10px;
-  padding:10px;
-  background:#f5f5f8;
-  color:#111;
-}
+    #title-group{
+      min-width:0;
+    }
 
-#settings textarea{
-  min-height:110px;
-  resize:vertical;
-}
+    #app-title{
+      font-size:1.08rem;
+      font-weight:800;
+      margin-bottom:4px;
+    }
 
-.settings-row{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-}
+    #chat-subtitle{
+      font-size:0.92rem;
+      color:var(--muted);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
 
-.danger{
-  background:linear-gradient(135deg,var(--danger),#ffb3c9);
-}
+    #top-actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
 
-.small-note{
-  color:var(--muted);
-  font-size:0.86em;
-  line-height:1.45;
-}
+    #top-actions button{
+      min-width:48px;
+      padding:9px 12px;
+    }
 
-hr{
-  border:none;
-  border-top:1px solid var(--divider);
-  margin:14px 0;
-}
-</style>
+    #promptbar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      padding:12px 16px;
+      border-bottom:1px solid var(--line);
+      background:rgba(255,255,255,0.10);
+    }
+
+    .prompt-btn{
+      padding:9px 13px;
+      border-radius:999px;
+      background:var(--chip);
+      color:var(--text);
+      border:1px solid transparent;
+      font-weight:700;
+    }
+
+    .prompt-btn:hover{
+      border-color:var(--accent-2);
+    }
+
+    .prompt-btn.active{
+      background:var(--chip-active);
+      border-color:var(--accent);
+      box-shadow:0 8px 18px rgba(201,151,103,0.12);
+    }
+
+    #chat{
+      flex:1;
+      overflow:auto;
+      padding:22px 22px 28px;
+    }
+
+    .empty-state{
+      min-height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:28px;
+      color:var(--muted);
+    }
+
+    .empty-card{
+      max-width:480px;
+      background:rgba(255,255,255,0.36);
+      border:1px solid var(--line);
+      border-radius:28px;
+      padding:34px 28px;
+      box-shadow:var(--shadow);
+    }
+
+    .empty-emoji{
+      font-size:2.4rem;
+      margin-bottom:10px;
+    }
+
+    .empty-title{
+      font-size:1.15rem;
+      font-weight:800;
+      color:var(--text);
+      margin-bottom:8px;
+    }
+
+    .empty-sub{
+      line-height:1.7;
+    }
+
+    .msg{
+      display:flex;
+      margin:12px 0;
+      align-items:flex-end;
+      gap:8px;
+    }
+
+    .msg.user{
+      justify-content:flex-end;
+    }
+
+    .msg.ai{
+      justify-content:flex-start;
+    }
+
+    .avatar{
+      width:34px;
+      height:34px;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-shrink:0;
+      background:var(--panel);
+      border:1px solid var(--line);
+      box-shadow:0 6px 16px rgba(0,0,0,0.05);
+      font-size:1rem;
+    }
+
+    .msg.user .avatar{
+      order:2;
+    }
+
+    .bubble-wrap{
+      max-width:min(76%, 760px);
+    }
+
+    .meta{
+      font-size:0.78rem;
+      color:var(--muted);
+      margin:0 6px 5px;
+    }
+
+    .msg.user .meta{
+      text-align:right;
+    }
+
+    .bubble{
+      padding:14px 16px;
+      border-radius:22px;
+      white-space:pre-wrap;
+      word-break:break-word;
+      line-height:1.65;
+      box-shadow:0 10px 22px rgba(0,0,0,0.04);
+    }
+
+    .msg.ai .bubble{
+      background:var(--bubble-ai);
+      border:1px solid var(--bubble-ai-border);
+      color:var(--text);
+    }
+
+    .msg.user .bubble{
+      background:linear-gradient(135deg, var(--bubble-user), var(--bubble-user-2));
+      color:white;
+    }
+
+    .msg.thinking .bubble{
+      opacity:0.82;
+      font-style:italic;
+    }
+
+    #inputbar{
+      border-top:1px solid var(--line);
+      padding:14px 16px 16px;
+      background:rgba(255,255,255,0.16);
+      display:flex;
+      gap:12px;
+      align-items:flex-end;
+    }
+
+    #input-wrap{
+      flex:1;
+      min-width:0;
+      background:var(--input-bg);
+      border:1px solid var(--line);
+      border-radius:22px;
+      padding:10px 12px 8px;
+      box-shadow:var(--shadow);
+    }
+
+    #input{
+      width:100%;
+      border:none;
+      background:transparent;
+      resize:none;
+      outline:none;
+      min-height:30px;
+      max-height:180px;
+      color:var(--text);
+      line-height:1.6;
+    }
+
+    #input::placeholder{
+      color:var(--muted);
+    }
+
+    #input-hint{
+      font-size:0.76rem;
+      color:var(--muted);
+      margin-top:6px;
+      padding-left:2px;
+    }
+
+    #send{
+      width:64px;
+      min-width:64px;
+      height:64px;
+      border-radius:20px;
+      font-size:1.1rem;
+    }
+
+    #send:disabled{
+      opacity:0.65;
+      cursor:not-allowed;
+      transform:none;
+    }
+
+    #settings-overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(44,30,20,0.24);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      z-index:999;
+    }
+
+    #settings{
+      width:min(560px, 100%);
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:0 24px 64px rgba(0,0,0,0.16);
+      padding:22px;
+      color:var(--text);
+    }
+
+    #settings h2{
+      margin:0 0 6px;
+      font-size:1.15rem;
+    }
+
+    .settings-sub{
+      color:var(--muted);
+      line-height:1.6;
+      margin-bottom:16px;
+      font-size:0.92rem;
+    }
+
+    .field{
+      margin-bottom:14px;
+    }
+
+    .field label{
+      display:block;
+      margin-bottom:7px;
+      font-size:0.88rem;
+      color:var(--muted);
+      font-weight:700;
+    }
+
+    .field input,
+    .field textarea{
+      width:100%;
+      border:1px solid var(--line);
+      background:var(--input-bg);
+      color:var(--text);
+      border-radius:18px;
+      padding:12px 13px;
+      outline:none;
+    }
+
+    .field textarea{
+      min-height:130px;
+      resize:vertical;
+      line-height:1.6;
+    }
+
+    .settings-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:8px;
+    }
+
+    .settings-actions button{
+      padding:10px 14px;
+    }
+
+    .current-prompt{
+      margin-top:12px;
+      color:var(--muted);
+      font-size:0.88rem;
+    }
+
+    .tiny-note{
+      margin-top:12px;
+      color:var(--muted);
+      font-size:0.82rem;
+      line-height:1.6;
+    }
+
+    @media (max-width: 900px){
+      #sidebar{
+        width:220px;
+      }
+
+      .bubble-wrap{
+        max-width:86%;
+      }
+    }
+
+    @media (max-width: 720px){
+      body{
+        flex-direction:column;
+      }
+
+      #sidebar{
+        width:100%;
+        border-right:none;
+        border-bottom:1px solid var(--line);
+        max-height:34vh;
+      }
+
+      #sidebar-footer{
+        grid-template-columns:repeat(3,1fr);
+      }
+
+      #sidebar-footer .wide{
+        grid-column:auto;
+      }
+
+      #send{
+        width:58px;
+        min-width:58px;
+        height:58px;
+      }
+    }
+  </style>
 </head>
-<body>
+<body data-theme="latte">
 
-<div id="sidebar">
-  <div id="brand">🐈 whisper.ai</div>
-
-  <div id="sidebar-actions">
-    <button onclick="newChat()">➕ 新聊天</button>
-    <button onclick="toggleSettings()">⚙️ 設定</button>
-  </div>
-
-  <div id="chatlist"></div>
-
-  <div class="sidebar-bottom">
-    <button onclick="setTheme('dark')">🌙 深色</button>
-    <button onclick="setTheme('pink')">🧋 粉色</button>
-  </div>
-</div>
-
-<div id="main">
-  <div id="topbar">
-    <div id="title-wrap">
-      <div id="app-title">🐈 whisper.ai v6.2</div>
-      <div id="chat-subtitle">喵～工程版，貓毛有撿回來</div>
+  <div id="sidebar">
+    <div id="brand-card">
+      <div id="brand-top">🐈 whisper.ai</div>
+      <div id="brand-sub">奶茶貓貓 UI v6.3<br>可愛、軟呼呼、但還是能做工程喵。</div>
     </div>
 
-    <div id="controls">
-      <button onclick="fontDown()">A-</button>
-      <button onclick="fontReset()">A</button>
-      <button onclick="fontUp()">A+</button>
+    <button id="new-chat" class="primary-btn" onclick="newChat()">➕ 開新聊天</button>
+
+    <div id="chatlist"></div>
+
+    <div id="sidebar-footer">
+      <button class="soft-btn" onclick="setTheme('latte')">🧋 奶茶</button>
+      <button class="soft-btn" onclick="setTheme('night')">🌙 夜間</button>
+      <button class="soft-btn wide" onclick="toggleSettings()">⚙️ 設定</button>
     </div>
   </div>
 
-  <div id="promptbar"></div>
+  <div id="main">
+    <div id="topbar">
+      <div id="title-group">
+        <div id="app-title">🐾 whisper.ai</div>
+        <div id="chat-subtitle">今天也來一杯可以聊天的珍奶喵。</div>
+      </div>
 
-  <div id="chat"></div>
+      <div id="top-actions">
+        <button class="soft-btn" onclick="fontDown()">A-</button>
+        <button class="soft-btn" onclick="fontReset()">A</button>
+        <button class="soft-btn" onclick="fontUp()">A+</button>
+      </div>
+    </div>
 
-  <div id="inputbar">
-    <input id="input" placeholder="喵～說點什麼" />
-    <button id="send">🐾</button>
-  </div>
-</div>
+    <div id="promptbar"></div>
 
-<div id="settings">
-  <div class="settings-title">⚙️ whisper 設定</div>
+    <div id="chat"></div>
 
-  <div class="settings-group">
-    <label for="apiKey">OpenAI API Key</label>
-    <input id="apiKey" placeholder="sk-..." />
-  </div>
-
-  <div class="settings-group">
-    <label for="modelName">Model</label>
-    <input id="modelName" placeholder="gpt-4o-mini" />
-  </div>
-
-  <div class="settings-group">
-    <label for="promptEditor">Prompt 編輯</label>
-    <textarea id="promptEditor"></textarea>
-  </div>
-
-  <div class="settings-row">
-    <button onclick="saveApi()">儲存 API / Model</button>
-    <button onclick="savePrompt()">儲存 Prompt</button>
-    <button onclick="addPrompt()">➕ 新 Prompt</button>
+    <div id="inputbar">
+      <div id="input-wrap">
+        <textarea id="input" rows="1" placeholder="喵～今天想聊什麼？"></textarea>
+        <div id="input-hint">Enter 送出 · Shift + Enter 換行</div>
+      </div>
+      <button id="send" class="primary-btn">🐾</button>
+    </div>
   </div>
 
-  <hr />
+  <div id="settings-overlay" onclick="overlayClose(event)">
+    <div id="settings">
+      <h2>⚙️ whisper 設定</h2>
+      <div class="settings-sub">
+        這裡可以改 API Key、模型名稱、還有目前選到的 Prompt。
+      </div>
 
-  <div class="settings-row">
-    <button class="danger" onclick="clearChat()">清空目前聊天</button>
-    <button onclick="toggleSettings()">關閉</button>
+      <div class="field">
+        <label for="apiKey">OpenAI API Key</label>
+        <input id="apiKey" type="password" placeholder="sk-..." />
+      </div>
+
+      <div class="field">
+        <label for="modelName">模型名稱</label>
+        <input id="modelName" placeholder="gpt-4o-mini" />
+      </div>
+
+      <div class="field">
+        <label for="promptEditor">Prompt 編輯</label>
+        <textarea id="promptEditor"></textarea>
+      </div>
+
+      <div class="settings-actions">
+        <button class="primary-btn" onclick="saveApi()">儲存 API / 模型</button>
+        <button class="primary-btn" onclick="savePrompt()">儲存 Prompt</button>
+        <button class="soft-btn" onclick="addPrompt()">➕ 新 Prompt</button>
+        <button class="danger-btn" onclick="clearChat()">清空目前聊天</button>
+        <button class="soft-btn" onclick="toggleSettings()">關閉</button>
+      </div>
+
+      <div class="current-prompt">目前編輯中：<span id="currentPromptName">未選擇</span></div>
+      <div class="tiny-note">
+        這版沿用你原本的前端直連 API 方式。若之後想做得更安全，再幫你改成後端 proxy 版喵。
+      </div>
+    </div>
   </div>
 
-  <p class="small-note">
-    目前編輯的是：<span id="currentPromptName">未選擇</span>
-  </p>
-</div>
-
-<script>
-const DEFAULT_PROMPTS = {
-  "劇場":"你是一個劇場型 AI，會加入動作與情緒描寫。",
-  "工程師":"你是一個冷靜工程師，回答精準、實作導向。",
-  "吐槽":"你是一個毒舌 AI，喜歡吐槽，但仍會回答問題。"
-};
-
-let API_KEY = localStorage.getItem("OPENAI_KEY") || "";
-let MODEL_NAME = localStorage.getItem("MODEL_NAME") || "gpt-4o-mini";
-let PROMPTS = JSON.parse(localStorage.getItem("PROMPTS") || "null") || DEFAULT_PROMPTS;
-let currentPrompt = localStorage.getItem("CURRENT_PROMPT") || Object.keys(PROMPTS)[0] || "";
-let chats = JSON.parse(localStorage.getItem("CHATS") || "null") || [[]];
-let currentChat = Number(localStorage.getItem("CURRENT_CHAT") || 0);
-let fontSize = Number(localStorage.getItem("FONT_SIZE") || 16);
-let isSending = false;
-
-if (!Array.isArray(chats) || chats.length === 0) chats = [[]];
-if (!chats[currentChat]) currentChat = 0;
-if (!PROMPTS[currentPrompt]) currentPrompt = Object.keys(PROMPTS)[0] || "";
-
-function saveChats(){
-  localStorage.setItem("CHATS", JSON.stringify(chats));
-  localStorage.setItem("CURRENT_CHAT", String(currentChat));
-}
-
-function savePrompts(){
-  localStorage.setItem("PROMPTS", JSON.stringify(PROMPTS));
-  localStorage.setItem("CURRENT_PROMPT", currentPrompt);
-}
-
-function applyFontSize(){
-  document.body.style.fontSize = fontSize + "px";
-  localStorage.setItem("FONT_SIZE", String(fontSize));
-}
-
-function fontUp(){
-  fontSize = Math.min(fontSize + 2, 28);
-  applyFontSize();
-}
-
-function fontDown(){
-  fontSize = Math.max(fontSize - 2, 12);
-  applyFontSize();
-}
-
-function fontReset(){
-  fontSize = 16;
-  applyFontSize();
-}
-
-function setTheme(name){
-  document.body.classList.remove("pink");
-  if (name === "pink") document.body.classList.add("pink");
-  localStorage.setItem("THEME", name);
-}
-
-function loadTheme(){
-  const t = localStorage.getItem("THEME");
-  if (t === "pink") document.body.classList.add("pink");
-}
-
-function toggleSettings(){
-  const s = document.getElementById("settings");
-  const isOpen = s.style.display === "block";
-
-  if (isOpen){
-    s.style.display = "none";
-    return;
-  }
-
-  document.getElementById("apiKey").value = API_KEY;
-  document.getElementById("modelName").value = MODEL_NAME;
-  document.getElementById("promptEditor").value = PROMPTS[currentPrompt] || "";
-  document.getElementById("currentPromptName").textContent = currentPrompt || "未選擇";
-  s.style.display = "block";
-}
-
-function saveApi(){
-  API_KEY = document.getElementById("apiKey").value.trim();
-  MODEL_NAME = document.getElementById("modelName").value.trim() || "gpt-4o-mini";
-  localStorage.setItem("OPENAI_KEY", API_KEY);
-  localStorage.setItem("MODEL_NAME", MODEL_NAME);
-  alert("API / Model 已儲存");
-}
-
-function buildPromptBar(){
-  const bar = document.getElementById("promptbar");
-  bar.innerHTML = "";
-
-  for (const name in PROMPTS){
-    const b = document.createElement("button");
-    b.className = "prompt-btn" + (name === currentPrompt ? " active" : "");
-    b.textContent = name;
-    b.onclick = () => selectPrompt(name);
-    bar.appendChild(b);
-  }
-
-  const add = document.createElement("button");
-  add.textContent = "➕";
-  add.onclick = addPrompt;
-  bar.appendChild(add);
-}
-
-function selectPrompt(name){
-  currentPrompt = name;
-  savePrompts();
-  buildPromptBar();
-  document.getElementById("promptEditor").value = PROMPTS[name] || "";
-  document.getElementById("currentPromptName").textContent = name;
-}
-
-function savePrompt(){
-  if (!currentPrompt){
-    alert("請先選一個 Prompt");
-    return;
-  }
-
-  PROMPTS[currentPrompt] = document.getElementById("promptEditor").value;
-  savePrompts();
-  buildPromptBar();
-  alert("Prompt 已更新");
-}
-
-function addPrompt(){
-  const name = prompt("Prompt 名稱");
-  if (!name) return;
-
-  if (PROMPTS[name]){
-    alert("這個 Prompt 名稱已存在");
-    return;
-  }
-
-  PROMPTS[name] = "新的 prompt";
-  currentPrompt = name;
-  savePrompts();
-  buildPromptBar();
-  document.getElementById("promptEditor").value = PROMPTS[name];
-  document.getElementById("currentPromptName").textContent = name;
-}
-
-function getCurrentChat(){
-  if (!chats[currentChat]) chats[currentChat] = [];
-  return chats[currentChat];
-}
-
-function getChatTitle(chat, index){
-  const firstUser = chat.find(m => m.role === "user" && m.text?.trim());
-  if (firstUser){
-    return firstUser.text.trim().slice(0, 14);
-  }
-  return "聊天 " + (index + 1);
-}
-
-function updateSubtitle(){
-  const title = getChatTitle(getCurrentChat(), currentChat);
-  document.getElementById("chat-subtitle").textContent = title;
-}
-
-function renderChatList(){
-  const box = document.getElementById("chatlist");
-  box.innerHTML = "";
-
-  chats.forEach((chat, i) => {
-    const b = document.createElement("button");
-    b.className = "chat-item" + (i === currentChat ? " active" : "");
-    b.textContent = getChatTitle(chat, i);
-    b.onclick = () => loadChat(i);
-    box.appendChild(b);
-  });
-
-  updateSubtitle();
-}
-
-function renderMessage(text, role){
-  const chat = document.getElementById("chat");
-
-  const m = document.createElement("div");
-  m.className = "msg " + role;
-
-  const b = document.createElement("div");
-  b.className = "bubble";
-  b.textContent = text;
-
-  m.appendChild(b);
-  chat.appendChild(m);
-  chat.scrollTop = chat.scrollHeight;
-
-  return m;
-}
-
-function renderCurrentChat(){
-  const chatBox = document.getElementById("chat");
-  chatBox.innerHTML = "";
-
-  getCurrentChat().forEach(msg => {
-    renderMessage(msg.text, msg.role);
-  });
-
-  updateSubtitle();
-}
-
-function addMessage(text, role){
-  getCurrentChat().push({ role, text });
-  saveChats();
-  renderMessage(text, role);
-  renderChatList();
-}
-
-function newChat(){
-  chats.push([]);
-  currentChat = chats.length - 1;
-  saveChats();
-  renderChatList();
-  renderCurrentChat();
-}
-
-function loadChat(i){
-  currentChat = i;
-  saveChats();
-  renderChatList();
-  renderCurrentChat();
-}
-
-function clearChat(){
-  chats[currentChat] = [];
-  saveChats();
-  renderChatList();
-  renderCurrentChat();
-}
-
-async function send(){
-  if (isSending) return;
-
-  const input = document.getElementById("input");
-  const text = input.value.trim();
-
-  if (!text) return;
-
-  if (!API_KEY){
-    alert("先去設定裡填 API Key 喵");
-    toggleSettings();
-    return;
-  }
-
-  isSending = true;
-  addMessage(text, "user");
-  input.value = "";
-
-  const thinkingNode = renderMessage("🐈‍⬛💭 thinking...", "ai");
-
-  try{
-    const messages = [];
-
-    if (currentPrompt && PROMPTS[currentPrompt]){
-      messages.push({
-        role: "system",
-        content: PROMPTS[currentPrompt]
-      });
+  <script>
+    function safeParse(key, fallback){
+      try{
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      }catch(err){
+        return fallback;
+      }
     }
 
-    for (const msg of getCurrentChat()){
-      messages.push({
-        role: msg.role,
-        content: msg.text
-      });
+    const DEFAULT_PROMPTS = {
+      "劇場":"你是一個劇場型 AI，會加入動作與情緒描寫。",
+      "工程師":"你是一個冷靜工程師，回答精準、偏實作導向。",
+      "吐槽":"你是一個毒舌 AI，喜歡吐槽，但仍然會回答問題。"
+    };
+
+    let API_KEY = localStorage.getItem("OPENAI_KEY") || "";
+    let MODEL_NAME = localStorage.getItem("MODEL_NAME") || "gpt-4o-mini";
+    let PROMPTS = safeParse("PROMPTS", null) || DEFAULT_PROMPTS;
+    let currentPrompt = localStorage.getItem("CURRENT_PROMPT") || Object.keys(PROMPTS)[0] || "";
+    let chats = safeParse("CHATS", null) || [[]];
+    let currentChat = Number(localStorage.getItem("CURRENT_CHAT") || 0);
+    let fontSize = Number(localStorage.getItem("FONT_SIZE") || 16);
+    let isSending = false;
+
+    if (!Array.isArray(chats) || chats.length === 0) chats = [[]];
+    if (!chats[currentChat]) currentChat = 0;
+    if (!PROMPTS[currentPrompt]) currentPrompt = Object.keys(PROMPTS)[0] || "";
+
+    function saveChats(){
+      localStorage.setItem("CHATS", JSON.stringify(chats));
+      localStorage.setItem("CURRENT_CHAT", String(currentChat));
     }
 
-    const res = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + API_KEY
-      },
-      body: JSON.stringify({
-        model: MODEL_NAME,
-        messages
-      })
+    function savePrompts(){
+      localStorage.setItem("PROMPTS", JSON.stringify(PROMPTS));
+      localStorage.setItem("CURRENT_PROMPT", currentPrompt);
+    }
+
+    function applyFontSize(){
+      document.body.style.fontSize = fontSize + "px";
+      localStorage.setItem("FONT_SIZE", String(fontSize));
+    }
+
+    function fontUp(){
+      fontSize = Math.min(fontSize + 2, 28);
+      applyFontSize();
+    }
+
+    function fontDown(){
+      fontSize = Math.max(fontSize - 2, 12);
+      applyFontSize();
+    }
+
+    function fontReset(){
+      fontSize = 16;
+      applyFontSize();
+    }
+
+    function normalizeTheme(theme){
+      if (theme === "pink") return "latte";
+      if (theme === "dark") return "night";
+      if (theme === "latte" || theme === "night") return theme;
+      return "latte";
+    }
+
+    function setTheme(theme){
+      const finalTheme = normalizeTheme(theme);
+      document.body.setAttribute("data-theme", finalTheme);
+      localStorage.setItem("THEME", finalTheme);
+    }
+
+    function loadTheme(){
+      const stored = normalizeTheme(localStorage.getItem("THEME"));
+      setTheme(stored);
+    }
+
+    function toggleSettings(){
+      const overlay = document.getElementById("settings-overlay");
+      const isOpen = overlay.style.display === "flex";
+
+      if (isOpen){
+        overlay.style.display = "none";
+        return;
+      }
+
+      document.getElementById("apiKey").value = API_KEY;
+      document.getElementById("modelName").value = MODEL_NAME;
+      document.getElementById("promptEditor").value = PROMPTS[currentPrompt] || "";
+      document.getElementById("currentPromptName").textContent = currentPrompt || "未選擇";
+      overlay.style.display = "flex";
+    }
+
+    function overlayClose(e){
+      if (e.target.id === "settings-overlay"){
+        document.getElementById("settings-overlay").style.display = "none";
+      }
+    }
+
+    function saveApi(){
+      API_KEY = document.getElementById("apiKey").value.trim();
+      MODEL_NAME = document.getElementById("modelName").value.trim() || "gpt-4o-mini";
+      localStorage.setItem("OPENAI_KEY", API_KEY);
+      localStorage.setItem("MODEL_NAME", MODEL_NAME);
+      alert("API / 模型 已儲存喵");
+    }
+
+    function buildPromptBar(){
+      const bar = document.getElementById("promptbar");
+      bar.innerHTML = "";
+
+      for (const name in PROMPTS){
+        const btn = document.createElement("button");
+        btn.className = "prompt-btn" + (name === currentPrompt ? " active" : "");
+        btn.textContent = name;
+        btn.onclick = () => selectPrompt(name);
+        bar.appendChild(btn);
+      }
+
+      const addBtn = document.createElement("button");
+      addBtn.className = "prompt-btn";
+      addBtn.textContent = "➕";
+      addBtn.onclick = addPrompt;
+      bar.appendChild(addBtn);
+    }
+
+    function selectPrompt(name){
+      currentPrompt = name;
+      savePrompts();
+      buildPromptBar();
+
+      const editor = document.getElementById("promptEditor");
+      const label = document.getElementById("currentPromptName");
+
+      if (editor) editor.value = PROMPTS[name] || "";
+      if (label) label.textContent = name;
+
+      updateSubtitle();
+    }
+
+    function savePrompt(){
+      if (!currentPrompt){
+        alert("請先選一個 Prompt 喵");
+        return;
+      }
+
+      PROMPTS[currentPrompt] = document.getElementById("promptEditor").value;
+      savePrompts();
+      buildPromptBar();
+      alert("Prompt 已更新喵");
+    }
+
+    function addPrompt(){
+      const name = window.prompt("Prompt 名稱");
+      if (!name) return;
+
+      const trimmed = name.trim();
+      if (!trimmed) return;
+
+      if (PROMPTS[trimmed]){
+        alert("這個 Prompt 名稱已經存在了喵");
+        return;
+      }
+
+      PROMPTS[trimmed] = "新的 prompt";
+      currentPrompt = trimmed;
+      savePrompts();
+      buildPromptBar();
+
+      const editor = document.getElementById("promptEditor");
+      const label = document.getElementById("currentPromptName");
+      if (editor) editor.value = PROMPTS[currentPrompt];
+      if (label) label.textContent = currentPrompt;
+    }
+
+    function getCurrentChat(){
+      if (!Array.isArray(chats[currentChat])) chats[currentChat] = [];
+      return chats[currentChat];
+    }
+
+    function getChatTitle(chat, index){
+      if (!Array.isArray(chat) || chat.length === 0){
+        return "新聊天 " + (index + 1);
+      }
+
+      const firstUser = chat.find(m => m.role === "user" && m.text && m.text.trim());
+      if (!firstUser) return "聊天 " + (index + 1);
+
+      const text = firstUser.text.replace(/\n/g, " ").trim();
+      return text.slice(0, 14) || ("聊天 " + (index + 1));
+    }
+
+    function getChatSub(chat){
+      if (!Array.isArray(chat) || chat.length === 0){
+        return "還沒有對話喵";
+      }
+
+      return chat.length + " 則訊息";
+    }
+
+    function updateSubtitle(){
+      const title = getChatTitle(getCurrentChat(), currentChat);
+      const promptName = currentPrompt ? " · " + currentPrompt : "";
+      document.getElementById("chat-subtitle").textContent = title + promptName;
+    }
+
+    function renderChatList(){
+      const box = document.getElementById("chatlist");
+      box.innerHTML = "";
+
+      chats.forEach((chat, i) => {
+        const btn = document.createElement("button");
+        btn.className = "chat-item" + (i === currentChat ? " active" : "");
+        btn.onclick = () => loadChat(i);
+
+        const title = document.createElement("div");
+        title.className = "chat-item-title";
+        title.textContent = "🐾 " + getChatTitle(chat, i);
+
+        const sub = document.createElement("div");
+        sub.className = "chat-item-sub";
+        sub.textContent = getChatSub(chat);
+
+        btn.appendChild(title);
+        btn.appendChild(sub);
+        box.appendChild(btn);
+      });
+
+      updateSubtitle();
+    }
+
+    function renderEmptyState(){
+      const chatBox = document.getElementById("chat");
+      chatBox.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-card">
+            <div class="empty-emoji">🐈 🧋</div>
+            <div class="empty-title">今天想聊什麼喵？</div>
+            <div class="empty-sub">
+              這裡可以放工程、劇場、吐槽、靈感，<br>
+              全部一起攪成一杯奶茶貓貓對話。
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderSingleMessage(text, role, thinking = false){
+      const chatBox = document.getElementById("chat");
+
+      const msg = document.createElement("div");
+      msg.className = "msg " + role + (thinking ? " thinking" : "");
+
+      const avatar = document.createElement("div");
+      avatar.className = "avatar";
+      avatar.textContent = role === "user" ? "🧋" : "🐈";
+
+      const wrap = document.createElement("div");
+      wrap.className = "bubble-wrap";
+
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      meta.textContent = role === "user" ? "你" : "whisper.ai";
+
+      const bubble = document.createElement("div");
+      bubble.className = "bubble";
+      bubble.textContent = text;
+
+      wrap.appendChild(meta);
+      wrap.appendChild(bubble);
+
+      msg.appendChild(avatar);
+      msg.appendChild(wrap);
+
+      chatBox.appendChild(msg);
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      return msg;
+    }
+
+    function renderCurrentChat(){
+      const chatBox = document.getElementById("chat");
+      chatBox.innerHTML = "";
+
+      const current = getCurrentChat();
+      if (!current.length){
+        renderEmptyState();
+        renderChatList();
+        return;
+      }
+
+      current.forEach(msg => {
+        renderSingleMessage(msg.text, msg.role, false);
+      });
+
+      renderChatList();
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function addMessage(text, role){
+      getCurrentChat().push({ role, text });
+      saveChats();
+      renderCurrentChat();
+    }
+
+    function newChat(){
+      chats.push([]);
+      currentChat = chats.length - 1;
+      saveChats();
+      renderCurrentChat();
+    }
+
+    function loadChat(index){
+      currentChat = index;
+      saveChats();
+      renderCurrentChat();
+    }
+
+    function clearChat(){
+      chats[currentChat] = [];
+      saveChats();
+      renderCurrentChat();
+      alert("目前聊天已清空喵");
+    }
+
+    function autoResizeTextarea(){
+      const input = document.getElementById("input");
+      input.style.height = "auto";
+      input.style.height = Math.min(input.scrollHeight, 180) + "px";
+    }
+
+    async function send(){
+      if (isSending) return;
+
+      const input = document.getElementById("input");
+      const sendBtn = document.getElementById("send");
+      const text = input.value.trim();
+
+      if (!text) return;
+
+      if (!API_KEY){
+        alert("先去設定裡填 API Key 喵");
+        toggleSettings();
+        return;
+      }
+
+      isSending = true;
+      sendBtn.disabled = true;
+
+      addMessage(text, "user");
+      input.value = "";
+      autoResizeTextarea();
+
+      const chatBox = document.getElementById("chat");
+      const thinkingNode = renderSingleMessage("🐈‍⬛ 正在把珍珠攪一攪，等我一下喵…", "ai", true);
+
+      try{
+        const messages = [];
+
+        if (currentPrompt && PROMPTS[currentPrompt]){
+          messages.push({
+            role: "system",
+            content: PROMPTS[currentPrompt]
+          });
+        }
+
+        for (const msg of getCurrentChat()){
+          messages.push({
+            role: msg.role,
+            content: msg.text
+          });
+        }
+
+        const res = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + API_KEY
+          },
+          body: JSON.stringify({
+            model: MODEL_NAME,
+            messages: messages
+          })
+        });
+
+        const data = await res.json();
+
+        thinkingNode.remove();
+
+        if (!res.ok){
+          throw new Error(data?.error?.message || "API 請求失敗");
+        }
+
+        const reply = data?.choices?.[0]?.message?.content?.trim() || "沒有回應喵";
+        addMessage(reply, "ai");
+      }catch(err){
+        thinkingNode.remove();
+        addMessage("出錯了喵：\n" + (err.message || "未知錯誤"), "ai");
+      }finally{
+        isSending = false;
+        sendBtn.disabled = false;
+      }
+    }
+
+    document.getElementById("send").onclick = send;
+
+    document.getElementById("input").addEventListener("input", autoResizeTextarea);
+
+    document.getElementById("input").addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey){
+        e.preventDefault();
+        send();
+      }
     });
 
-    const data = await res.json();
+    function init(){
+      applyFontSize();
+      loadTheme();
+      buildPromptBar();
+      renderCurrentChat();
 
-    thinkingNode.remove();
+      document.getElementById("apiKey").value = API_KEY;
+      document.getElementById("modelName").value = MODEL_NAME;
+      document.getElementById("promptEditor").value = PROMPTS[currentPrompt] || "";
+      document.getElementById("currentPromptName").textContent = currentPrompt || "未選擇";
 
-    if (!res.ok){
-      throw new Error(data?.error?.message || "API 請求失敗");
+      autoResizeTextarea();
     }
 
-    const reply = data?.choices?.[0]?.message?.content || "沒有回應";
-    addMessage(reply, "ai");
-  }catch(err){
-    thinkingNode.remove();
-    addMessage("出錯了喵：\n" + (err.message || "未知錯誤"), "ai");
-  }finally{
-    isSending = false;
-  }
-}
-
-document.getElementById("send").onclick = send;
-
-document.getElementById("input").addEventListener("keydown", (e) => {
-  if (e.key === "Enter"){
-    e.preventDefault();
-    send();
-  }
-});
-
-function init(){
-  applyFontSize();
-  loadTheme();
-
-  if (!Array.isArray(chats) || chats.length === 0){
-    chats = [[]];
-  }
-
-  if (!PROMPTS[currentPrompt]){
-    currentPrompt = Object.keys(PROMPTS)[0] || "";
-  }
-
-  buildPromptBar();
-  renderChatList();
-  renderCurrentChat();
-
-  document.getElementById("apiKey").value = API_KEY;
-  document.getElementById("modelName").value = MODEL_NAME;
-  document.getElementById("promptEditor").value = PROMPTS[currentPrompt] || "";
-  document.getElementById("currentPromptName").textContent = currentPrompt || "未選擇";
-}
-
-init();
-</script>
-
+    init();
+  </script>
 </body>
 </html>
