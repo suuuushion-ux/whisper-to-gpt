@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🐈 whisper.ai 奶茶貓貓 UI v6.3.1</title>
+  <title>🐈 whisper.ai 奶茶貓貓 UI v6.3.2</title>
 
   <style>
     :root{
@@ -84,7 +84,7 @@
       font-size:16px;
     }
 
-    button, input, textarea{
+    button, input, textarea, select{
       font:inherit;
     }
 
@@ -123,7 +123,7 @@
     }
 
     #sidebar{
-      width:260px;
+      width:270px;
       background:rgba(255,255,255,0.28);
       backdrop-filter:blur(18px);
       border-right:1px solid var(--line);
@@ -174,10 +174,11 @@
       width:100%;
       text-align:left;
       padding:12px 13px;
-      border-radius:16px;
+      border-radius:18px;
       background:rgba(255,255,255,0.38);
       border:1px solid transparent;
       color:var(--text);
+      position:relative;
     }
 
     .chat-item:hover{
@@ -198,11 +199,34 @@
       overflow:hidden;
       text-overflow:ellipsis;
       margin-bottom:3px;
+      padding-right:26px;
     }
 
     .chat-item-sub{
       font-size:0.80rem;
       color:var(--muted);
+    }
+
+    .chat-rename-btn{
+      position:absolute;
+      top:10px;
+      right:10px;
+      width:26px;
+      height:26px;
+      border-radius:10px;
+      background:transparent;
+      border:1px solid transparent;
+      color:var(--muted);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      opacity:0.65;
+    }
+
+    .chat-rename-btn:hover{
+      background:var(--panel);
+      border-color:var(--line);
+      opacity:1;
     }
 
     #sidebar-footer{
@@ -235,12 +259,35 @@
 
     #title-group{
       min-width:0;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+
+    #title-row{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
     }
 
     #app-title{
       font-size:1.08rem;
       font-weight:800;
-      margin-bottom:4px;
+    }
+
+    #rename-current-chat{
+      padding:7px 11px;
+      border-radius:999px;
+      font-size:0.86rem;
+    }
+
+    #meta-row{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+      min-width:0;
     }
 
     #chat-subtitle{
@@ -249,6 +296,18 @@
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
+      min-width:0;
+      max-width:520px;
+    }
+
+    #model-badge{
+      padding:6px 10px;
+      border-radius:999px;
+      background:var(--chip);
+      border:1px solid var(--line);
+      color:var(--text);
+      font-size:0.84rem;
+      font-weight:700;
     }
 
     #top-actions{
@@ -307,7 +366,7 @@
     }
 
     .empty-card{
-      max-width:480px;
+      max-width:520px;
       background:rgba(255,255,255,0.36);
       border:1px solid var(--line);
       border-radius:28px;
@@ -316,7 +375,7 @@
     }
 
     .empty-emoji{
-      font-size:2.4rem;
+      font-size:2.6rem;
       margin-bottom:10px;
     }
 
@@ -329,6 +388,19 @@
 
     .empty-sub{
       line-height:1.7;
+      margin-bottom:16px;
+    }
+
+    .empty-actions{
+      display:flex;
+      gap:8px;
+      justify-content:center;
+      flex-wrap:wrap;
+    }
+
+    .empty-actions button{
+      padding:10px 14px;
+      border-radius:999px;
     }
 
     .msg{
@@ -342,8 +414,7 @@
       justify-content:flex-end;
     }
 
-    .msg.assistant,
-    .msg.ai{
+    .msg.assistant{
       justify-content:flex-start;
     }
 
@@ -362,6 +433,14 @@
     }
 
     .msg.user .avatar{
+      order:3;
+    }
+
+    .msg.user .bubble-wrap{
+      order:1;
+    }
+
+    .msg.user .msg-actions{
       order:2;
     }
 
@@ -388,8 +467,7 @@
       box-shadow:0 10px 22px rgba(0,0,0,0.04);
     }
 
-    .msg.assistant .bubble,
-    .msg.ai .bubble{
+    .msg.assistant .bubble{
       background:var(--bubble-ai);
       border:1px solid var(--bubble-ai-border);
       color:var(--text);
@@ -403,6 +481,33 @@
     .msg.thinking .bubble{
       opacity:0.82;
       font-style:italic;
+    }
+
+    .msg-actions{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      opacity:0.7;
+    }
+
+    .msg-delete{
+      width:36px;
+      height:36px;
+      border-radius:14px;
+      background:var(--panel);
+      border:1px solid var(--line);
+      color:var(--muted);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:0.92rem;
+      box-shadow:0 6px 16px rgba(0,0,0,0.04);
+    }
+
+    .msg-delete:hover{
+      color:var(--text);
+      border-color:var(--accent-2);
+      background:var(--panel-2);
     }
 
     #inputbar{
@@ -473,7 +578,7 @@
     }
 
     #settings{
-      width:min(560px, 100%);
+      width:min(580px, 100%);
       background:var(--panel);
       border:1px solid var(--line);
       border-radius:28px;
@@ -507,7 +612,8 @@
     }
 
     .field input,
-    .field textarea{
+    .field textarea,
+    .field select{
       width:100%;
       border:1px solid var(--line);
       background:var(--input-bg);
@@ -547,13 +653,17 @@
       line-height:1.6;
     }
 
-    @media (max-width: 900px){
+    @media (max-width: 920px){
       #sidebar{
-        width:220px;
+        width:230px;
       }
 
       .bubble-wrap{
         max-width:86%;
+      }
+
+      #chat-subtitle{
+        max-width:360px;
       }
     }
 
@@ -582,6 +692,10 @@
         min-width:58px;
         height:58px;
       }
+
+      #chat-subtitle{
+        max-width:unset;
+      }
     }
   </style>
 </head>
@@ -590,7 +704,7 @@
   <div id="sidebar">
     <div id="brand-card">
       <div id="brand-top">🐈 whisper.ai</div>
-      <div id="brand-sub">奶茶貓貓 UI v6.3.1<br>可愛、軟呼呼、但還是能做工程喵。</div>
+      <div id="brand-sub">奶茶貓貓 UI v6.3.2<br>可愛、軟呼呼、互動也真的會做事喵。</div>
     </div>
 
     <button id="new-chat" class="primary-btn" onclick="newChat()">➕ 開新聊天</button>
@@ -607,8 +721,14 @@
   <div id="main">
     <div id="topbar">
       <div id="title-group">
-        <div id="app-title">🐾 whisper.ai</div>
-        <div id="chat-subtitle">今天也來一杯可以聊天的珍奶喵。</div>
+        <div id="title-row">
+          <div id="app-title">🐾 whisper.ai</div>
+          <button id="rename-current-chat" class="soft-btn" onclick="renameCurrentChat()">✏️ 改名</button>
+        </div>
+        <div id="meta-row">
+          <div id="chat-subtitle">今天也來一杯可以聊天的珍奶喵。</div>
+          <div id="model-badge">目前模型：gpt-4o</div>
+        </div>
       </div>
 
       <div id="top-actions">
@@ -644,8 +764,11 @@
       </div>
 
       <div class="field">
-        <label for="modelName">模型名稱</label>
-        <input id="modelName" placeholder="gpt-4o-mini" />
+        <label for="modelName">模型名稱（固定使用官方 model ID）</label>
+        <select id="modelName">
+          <option value="gpt-4o">gpt-4o</option>
+          <option value="gpt-4o-mini">gpt-4o-mini</option>
+        </select>
       </div>
 
       <div class="field">
@@ -663,12 +786,16 @@
 
       <div class="current-prompt">目前編輯中：<span id="currentPromptName">未選擇</span></div>
       <div class="tiny-note">
-        這版沿用前端直連 API 方式。之後若要更安全，可以再改成後端 proxy。
+        目前模型真相以設定欄與畫面上的「目前模型」為準，不靠聊天內容自我判定。
       </div>
     </div>
   </div>
 
   <script>
+    function createId(){
+      return "id_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 9);
+    }
+
     function safeParse(key, fallback){
       try{
         const raw = localStorage.getItem(key);
@@ -678,24 +805,18 @@
       }
     }
 
+    const DEFAULT_MODEL = "gpt-4o";
+    const ALLOWED_MODELS = ["gpt-4o", "gpt-4o-mini"];
+
     const DEFAULT_PROMPTS = {
       "劇場":"你是一個劇場型 AI，會加入動作與情緒描寫。",
       "工程師":"你是一個冷靜工程師，回答精準、偏實作導向。",
       "吐槽":"你是一個毒舌 AI，喜歡吐槽，但仍然會回答問題。"
     };
 
-    let API_KEY = localStorage.getItem("OPENAI_KEY") || "";
-    let MODEL_NAME = localStorage.getItem("MODEL_NAME") || "gpt-4o-mini";
-    let PROMPTS = safeParse("PROMPTS", null) || DEFAULT_PROMPTS;
-    let currentPrompt = localStorage.getItem("CURRENT_PROMPT") || Object.keys(PROMPTS)[0] || "";
-    let chats = safeParse("CHATS", null) || [[]];
-    let currentChat = Number(localStorage.getItem("CURRENT_CHAT") || 0);
-    let fontSize = Number(localStorage.getItem("FONT_SIZE") || 16);
-    let isSending = false;
-
-    if (!Array.isArray(chats) || chats.length === 0) chats = [[]];
-    if (!chats[currentChat]) currentChat = 0;
-    if (!PROMPTS[currentPrompt]) currentPrompt = Object.keys(PROMPTS)[0] || "";
+    function normalizeModelName(model){
+      return ALLOWED_MODELS.includes(model) ? model : DEFAULT_MODEL;
+    }
 
     function normalizeStoredRole(role){
       if (role === "ai") return "assistant";
@@ -708,9 +829,58 @@
       return "user";
     }
 
-    function isAssistantRole(role){
-      return role === "assistant" || role === "ai";
+    function normalizeMessage(msg){
+      if (!msg || typeof msg !== "object"){
+        return { id:createId(), role:"user", text:"" };
+      }
+
+      return {
+        id: msg.id || createId(),
+        role: normalizeStoredRole(msg.role),
+        text: typeof msg.text === "string" ? msg.text : ""
+      };
     }
+
+    function createEmptyChat(){
+      return {
+        id:createId(),
+        title:"",
+        messages:[]
+      };
+    }
+
+    function normalizeChatItem(chat){
+      if (Array.isArray(chat)){
+        return {
+          id:createId(),
+          title:"",
+          messages: chat.map(normalizeMessage)
+        };
+      }
+
+      if (chat && typeof chat === "object"){
+        return {
+          id: chat.id || createId(),
+          title: typeof chat.title === "string" ? chat.title : "",
+          messages: Array.isArray(chat.messages) ? chat.messages.map(normalizeMessage) : []
+        };
+      }
+
+      return createEmptyChat();
+    }
+
+    let API_KEY = localStorage.getItem("OPENAI_KEY") || "";
+    let MODEL_NAME = normalizeModelName(localStorage.getItem("MODEL_NAME") || DEFAULT_MODEL);
+    let PROMPTS = safeParse("PROMPTS", null) || DEFAULT_PROMPTS;
+    let currentPrompt = localStorage.getItem("CURRENT_PROMPT") || Object.keys(PROMPTS)[0] || "";
+    let chats = (safeParse("CHATS", null) || [createEmptyChat()]).map(normalizeChatItem);
+    let currentChat = Number(localStorage.getItem("CURRENT_CHAT") || 0);
+    let fontSize = Number(localStorage.getItem("FONT_SIZE") || 16);
+    let isSending = false;
+
+    if (!Array.isArray(chats) || chats.length === 0) chats = [createEmptyChat()];
+    if (!chats[currentChat]) currentChat = 0;
+    if (!PROMPTS[currentPrompt]) currentPrompt = Object.keys(PROMPTS)[0] || "";
 
     function saveChats(){
       localStorage.setItem("CHATS", JSON.stringify(chats));
@@ -782,11 +952,16 @@
       }
     }
 
+    function updateModelBadge(){
+      document.getElementById("model-badge").textContent = "目前模型：" + MODEL_NAME;
+    }
+
     function saveApi(){
       API_KEY = document.getElementById("apiKey").value.trim();
-      MODEL_NAME = document.getElementById("modelName").value.trim() || "gpt-4o-mini";
+      MODEL_NAME = normalizeModelName(document.getElementById("modelName").value);
       localStorage.setItem("OPENAI_KEY", API_KEY);
       localStorage.setItem("MODEL_NAME", MODEL_NAME);
+      updateModelBadge();
       alert("API / 模型 已儲存喵");
     }
 
@@ -856,37 +1031,39 @@
       const label = document.getElementById("currentPromptName");
       if (editor) editor.value = PROMPTS[currentPrompt];
       if (label) label.textContent = currentPrompt;
+
+      updateSubtitle();
     }
 
     function getCurrentChat(){
-      if (!Array.isArray(chats[currentChat])) chats[currentChat] = [];
+      if (!chats[currentChat]) chats[currentChat] = createEmptyChat();
       return chats[currentChat];
     }
 
-    function getChatTitle(chat, index){
-      if (!Array.isArray(chat) || chat.length === 0){
+    function getAutoChatTitle(chat, index){
+      const firstUser = chat.messages.find(m => m.role === "user" && m.text && m.text.trim());
+      if (!firstUser){
         return "新聊天 " + (index + 1);
       }
+      return firstUser.text.replace(/\n/g, " ").trim().slice(0, 14) || ("聊天 " + (index + 1));
+    }
 
-      const firstUser = chat.find(m => normalizeStoredRole(m.role) === "user" && m.text && m.text.trim());
-      if (!firstUser) return "聊天 " + (index + 1);
-
-      const text = firstUser.text.replace(/\n/g, " ").trim();
-      return text.slice(0, 14) || ("聊天 " + (index + 1));
+    function getChatDisplayTitle(chat, index){
+      return (chat.title && chat.title.trim()) || getAutoChatTitle(chat, index);
     }
 
     function getChatSub(chat){
-      if (!Array.isArray(chat) || chat.length === 0){
+      if (!chat.messages.length){
         return "還沒有對話喵";
       }
-
-      return chat.length + " 則訊息";
+      return chat.messages.length + " 則訊息";
     }
 
     function updateSubtitle(){
-      const title = getChatTitle(getCurrentChat(), currentChat);
+      const chat = getCurrentChat();
+      const title = getChatDisplayTitle(chat, currentChat);
       const promptName = currentPrompt ? " · " + currentPrompt : "";
-      document.getElementById("chat-subtitle").textContent = title + promptName;
+      document.getElementById("chat-subtitle").textContent = "目前聊天室：" + title + promptName;
     }
 
     function renderChatList(){
@@ -900,14 +1077,24 @@
 
         const title = document.createElement("div");
         title.className = "chat-item-title";
-        title.textContent = "🐾 " + getChatTitle(chat, i);
+        title.textContent = "🐾 " + getChatDisplayTitle(chat, i);
 
         const sub = document.createElement("div");
         sub.className = "chat-item-sub";
         sub.textContent = getChatSub(chat);
 
+        const renameBtn = document.createElement("button");
+        renameBtn.className = "chat-rename-btn";
+        renameBtn.innerHTML = "✏️";
+        renameBtn.title = "改名";
+        renameBtn.onclick = (e) => {
+          e.stopPropagation();
+          renameChat(i);
+        };
+
         btn.appendChild(title);
         btn.appendChild(sub);
+        btn.appendChild(renameBtn);
         box.appendChild(btn);
       });
 
@@ -925,14 +1112,26 @@
               這裡可以放工程、劇場、吐槽、靈感，<br>
               全部一起攪成一杯奶茶貓貓對話。
             </div>
+            <div class="empty-actions">
+              <button class="soft-btn" onclick="quickFill('陪我聊聊喵')">陪我聊聊</button>
+              <button class="soft-btn" onclick="quickFill('幫我改 code 喵')">幫我改 code</button>
+              <button class="soft-btn" onclick="quickFill('吐槽我一下喵')">吐槽一下</button>
+            </div>
           </div>
         </div>
       `;
     }
 
-    function renderSingleMessage(text, role, thinking = false){
+    function quickFill(text){
+      const input = document.getElementById("input");
+      input.value = text;
+      autoResizeTextarea();
+      input.focus();
+    }
+
+    function renderSingleMessage(message, thinking = false){
       const chatBox = document.getElementById("chat");
-      const uiRole = isAssistantRole(role) ? "assistant" : role;
+      const uiRole = message.role === "assistant" ? "assistant" : "user";
 
       const msg = document.createElement("div");
       msg.className = "msg " + uiRole + (thinking ? " thinking" : "");
@@ -950,13 +1149,27 @@
 
       const bubble = document.createElement("div");
       bubble.className = "bubble";
-      bubble.textContent = text;
+      bubble.textContent = message.text;
 
       wrap.appendChild(meta);
       wrap.appendChild(bubble);
 
       msg.appendChild(avatar);
       msg.appendChild(wrap);
+
+      if (!thinking){
+        const actions = document.createElement("div");
+        actions.className = "msg-actions";
+
+        const delBtn = document.createElement("button");
+        delBtn.className = "msg-delete";
+        delBtn.title = "刪除此訊息";
+        delBtn.innerHTML = "🗑️";
+        delBtn.onclick = () => deleteMessage(message.id);
+
+        actions.appendChild(delBtn);
+        msg.appendChild(actions);
+      }
 
       chatBox.appendChild(msg);
       chatBox.scrollTop = chatBox.scrollHeight;
@@ -969,14 +1182,14 @@
       chatBox.innerHTML = "";
 
       const current = getCurrentChat();
-      if (!current.length){
+      if (!current.messages.length){
         renderEmptyState();
         renderChatList();
         return;
       }
 
-      current.forEach(msg => {
-        renderSingleMessage(msg.text, normalizeStoredRole(msg.role), false);
+      current.messages.forEach(message => {
+        renderSingleMessage(message, false);
       });
 
       renderChatList();
@@ -985,13 +1198,17 @@
 
     function addMessage(text, role){
       const normalizedRole = normalizeStoredRole(role);
-      getCurrentChat().push({ role: normalizedRole, text });
+      getCurrentChat().messages.push({
+        id:createId(),
+        role:normalizedRole,
+        text
+      });
       saveChats();
       renderCurrentChat();
     }
 
     function newChat(){
-      chats.push([]);
+      chats.push(createEmptyChat());
       currentChat = chats.length - 1;
       saveChats();
       renderCurrentChat();
@@ -1004,10 +1221,42 @@
     }
 
     function clearChat(){
-      chats[currentChat] = [];
+      chats[currentChat].messages = [];
+      if (!chats[currentChat].title) {
+        chats[currentChat].title = "";
+      }
       saveChats();
       renderCurrentChat();
       alert("目前聊天已清空喵");
+    }
+
+    function renameChat(index){
+      const chat = chats[index];
+      const currentName = chat.title || getAutoChatTitle(chat, index);
+      const nextName = window.prompt("聊天室名稱\n留空可恢復自動命名", currentName);
+
+      if (nextName === null) return;
+
+      chat.title = nextName.trim();
+      saveChats();
+      renderCurrentChat();
+    }
+
+    function renameCurrentChat(){
+      renameChat(currentChat);
+    }
+
+    function deleteMessage(messageId){
+      const chat = getCurrentChat();
+      const target = chat.messages.find(m => m.id === messageId);
+      if (!target) return;
+
+      const ok = window.confirm("要刪掉這則訊息嗎喵？");
+      if (!ok) return;
+
+      chat.messages = chat.messages.filter(m => m.id !== messageId);
+      saveChats();
+      renderCurrentChat();
     }
 
     function autoResizeTextarea(){
@@ -1016,8 +1265,23 @@
       input.style.height = Math.min(input.scrollHeight, 180) + "px";
     }
 
+    function getIdentityGuard(){
+      return [
+        "你是 whisper.ai 內的 AI 助手。",
+        "目前這個 app 設定欄顯示的模型 ID 是：" + MODEL_NAME + "。",
+        "若使用者詢問你是什麼模型、版本、系列，請回答：『請以設定欄顯示為準，目前設定模型是 " + MODEL_NAME + "。』",
+        "不要自稱成其他模型，例如 GPT-4.5、GPT-5、GPT-4.1 等，除非設定欄真的就是那個值。",
+        "若你不確定，仍然要以設定欄顯示為準。"
+      ].join("\\n");
+    }
+
     function buildApiMessages(chatMessages){
       const result = [];
+
+      result.push({
+        role: "system",
+        content: getIdentityGuard()
+      });
 
       if (currentPrompt && PROMPTS[currentPrompt]){
         result.push({
@@ -1027,9 +1291,8 @@
       }
 
       for (const msg of chatMessages){
-        const apiRole = normalizeStoredRole(msg.role);
         result.push({
-          role: apiRole,
+          role: normalizeStoredRole(msg.role),
           content: msg.text
         });
       }
@@ -1059,8 +1322,12 @@
       input.value = "";
       autoResizeTextarea();
 
-      const currentMessages = getCurrentChat().slice();
-      const thinkingNode = renderSingleMessage("🐈‍⬛ 正在把珍珠攪一攪，等我一下喵…", "assistant", true);
+      const currentMessages = getCurrentChat().messages.slice();
+      const thinkingNode = renderSingleMessage({
+        id:createId(),
+        role:"assistant",
+        text:"🐈‍⬛ 正在把珍珠攪一攪，等我一下喵…"
+      }, true);
 
       try{
         const res = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -1087,7 +1354,7 @@
         addMessage(reply, "assistant");
       }catch(err){
         thinkingNode.remove();
-        addMessage("出錯了喵：\n" + (err.message || "未知錯誤"), "assistant");
+        addMessage("出錯了喵：\\n" + (err.message || "未知錯誤"), "assistant");
       }finally{
         isSending = false;
         sendBtn.disabled = false;
@@ -1109,6 +1376,7 @@
       applyFontSize();
       loadTheme();
       buildPromptBar();
+      updateModelBadge();
       renderCurrentChat();
 
       document.getElementById("apiKey").value = API_KEY;
@@ -1117,6 +1385,7 @@
       document.getElementById("currentPromptName").textContent = currentPrompt || "未選擇";
 
       autoResizeTextarea();
+      saveChats();
     }
 
     init();
